@@ -9,6 +9,11 @@ shift
 for ARG in $@; do
     tasks="$tasks,$ARG"
 done
-echo "$tasks"
-python download_glue_data.py --data_dir . --tasks "$tasks"
+
+if test -z "$tasks"
+then
+    python download_glue_data.py --data_dir .
+else
+    python download_glue_data.py --data_dir . --tasks "$tasks"
+fi
 rm -f download_glue_data.py*

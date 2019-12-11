@@ -14,6 +14,7 @@
 """Example of building XLNet language model for classification/regression.
 """
 
+import os
 import argparse
 import functools
 import importlib
@@ -45,14 +46,17 @@ for model_class in MODEL_CLASSES.values():
     ALL_MODEL_NAMES.extend(model_class[0].available_checkpoints())
 
 
-def load_config_into_args(config_path: str, args):
+def load_config_into_args(config_path: str, args, is_dict=False):
     config_module_path = config_path.replace('/', '.').replace('\\', '.')
     if config_module_path.endswith(".py"):
         config_module_path = config_module_path[:-3]
     config_data = importlib.import_module(config_module_path)
     for key in dir(config_data):
-        if not key.startswith('__'):
-            setattr(args, key, getattr(config_data, key))
+        if not key.startswith('__') and key != "hyperparams":
+            if is_dict:
+                args[key] = getattr(config_data, key)
+            else:
+                setattr(args, key, getattr(config_data, key))
 
 
 def parse_args():
@@ -154,6 +158,9 @@ class ClassifierWrapper(tx.modules.XLNetClassifier):
 
 
 def main(args) -> None:
+    config_model = {}
+    load_config_into_args(args.config_model, config_model, is_dict=True)
+
     model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     isbert = True if args.model_type == 'bert' else False
     isxlnet = True if args.model_type == 'xlnet' else False

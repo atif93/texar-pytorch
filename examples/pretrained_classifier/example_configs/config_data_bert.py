@@ -1,4 +1,4 @@
-pickle_data_dir = "data/MRPC"
+pickle_data_dir = "glue_data/MRPC"
 max_seq_length = 128
 num_classes = 2
 num_train_data = 3668

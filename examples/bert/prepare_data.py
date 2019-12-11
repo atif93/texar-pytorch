@@ -101,9 +101,9 @@ def main() -> None:
         "SST": "SST-2",
     }
 
-    data_dir = f'data/{args.task}'
+    data_dir = f'glue_data/{args.task}'
     if args.task.upper() in task_datasets_rename:
-        data_dir = f'data/{task_datasets_rename[args.task]}'
+        data_dir = f'glue_data/{task_datasets_rename[args.task]}'
 
     if args.output_dir is None:
         output_dir = data_dir
