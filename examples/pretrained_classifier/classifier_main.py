@@ -64,10 +64,10 @@ def parse_args():
 
     # configs
     parser.add_argument(
-        "--config-data", required=True,
+        "--config-data", default="configs/config_data_bert",
         help="Path to the dataset configuration file.")
     parser.add_argument(
-        "--config-model", default="config_bert_classifier",
+        "--config-model", default="configs/config_classifier_bert",
         help="Configuration of the downstream part of the model")
 
     parser.add_argument(
@@ -76,7 +76,7 @@ def parse_args():
         help="Name of the pre-trained checkpoint to load.")
     parser.add_argument(
         '--pretrained-model-name', type=str,
-        choices=" ".join(ALL_MODEL_NAMES),
+        choices=ALL_MODEL_NAMES,
         help="Name of the pre-trained checkpoint to load.")
 
     parser.add_argument(
@@ -173,7 +173,7 @@ def main(args) -> None:
 
     if isbert:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        tx.utils.maybe_create_dir(args.output_dir)
+        tx.utils.maybe_create_dir(args.save_dir)
 
     if isxlnet:
         datasets = construct_datasets(args)
@@ -255,7 +255,7 @@ def main(args) -> None:
         # Builds BERT
         model = model_class(
             pretrained_model_name=args.pretrained_model_name,
-            hparams=args.config_model)
+            hparams=config_model)
         model.to(device)
 
         num_train_steps = int(num_train_data / args.train_batch_size *
@@ -386,7 +386,7 @@ def main(args) -> None:
 
                 _all_preds.extend(preds.tolist())
 
-            output_file = os.path.join(args.output_dir, "test_results.tsv")
+            output_file = os.path.join(args.save_dir, "test_results.tsv")
             with open(output_file, "w+") as writer:
                 writer.write("\n".join(str(p) for p in _all_preds))
 
@@ -404,7 +404,7 @@ def main(args) -> None:
                 'optimizer': optim.state_dict(),
                 'scheduler': scheduler.state_dict(),
             }
-            torch.save(states, os.path.join(args.output_dir, 'model.ckpt'))
+            torch.save(states, os.path.join(args.save_dir, 'model.ckpt'))
 
         if args.do_eval:
             _eval_epoch()

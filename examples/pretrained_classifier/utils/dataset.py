@@ -26,7 +26,7 @@ import torch
 import tqdm
 import texar.torch as tx
 
-from utils import data_utils
+from utils import data_utils_xlnet
 from utils.processor import DataProcessor, get_processor_class
 
 __all__ = [

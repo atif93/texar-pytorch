@@ -45,7 +45,7 @@ parser.add_argument(
          "By default it will be set to 'data/{task}'. E.g.: if "
          "task is 'MRPC', it will be set as 'data/MRPC'")
 parser.add_argument(
-    "--config-data", default="config_data", help="The dataset config.")
+    "--config-data", default="configs/config_data_bert", help="The dataset config.")
 args = parser.parse_args()
 
 logging.root.setLevel(logging.INFO)
