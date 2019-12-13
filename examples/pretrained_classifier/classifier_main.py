@@ -250,7 +250,7 @@ def main(args) -> None:
         if args.checkpoint is not None:
             executor.load(args.checkpoint)
 
-        if args.mode == 'train':
+        if args.do_train:
             executor.train()
             executor.save()
             executor.test(tx.utils.dict_fetch(datasets, ["dev", "test"]))
