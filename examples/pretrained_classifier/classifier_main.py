@@ -64,14 +64,14 @@ def parse_args():
 
     # configs
     parser.add_argument(
-        "--config-data", default="configs/config_data_bert",
+        "--config-data", default=None,
         help="Path to the dataset configuration file.")
     parser.add_argument(
-        "--config-model", default="configs/config_classifier_bert",
+        "--config-model", default=None,
         help="Configuration of the downstream part of the model")
 
     parser.add_argument(
-        '--model-type', type=str,
+        '--model-type', type=str, required=True,
         choices=MODEL_CLASSES.keys(),
         help="Name of the pre-trained checkpoint to load.")
     parser.add_argument(
@@ -83,7 +83,7 @@ def parse_args():
         "--checkpoint", type=str, default=None,
         help="Path to a saved checkpoint file to load")
     parser.add_argument(
-        "--save-dir", type=str, default=None,
+        "--save-dir", type=str, default='output',
         help="Directory to save model checkpoints")
 
     parser.add_argument(
@@ -108,8 +108,6 @@ def parse_args():
         help="Whether to run test on the test set.")
 
     args = parser.parse_args()
-    load_config_into_args(args.config_data, args)
-    load_config_into_args(args.config_model, args)
     return args
 
 
@@ -158,14 +156,27 @@ class ClassifierWrapper(tx.modules.XLNetClassifier):
 
 
 def main(args) -> None:
-    config_model = {}
-    load_config_into_args(args.config_model, config_model, is_dict=True)
-
     model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     isbert = True if args.model_type == 'bert' else False
     isxlnet = True if args.model_type == 'xlnet' else False
     isgpt2 = True if args.model_type == 'gpt2' else False
     isroberta = True if args.model_type == 'roberta' else False
+
+    if args.config_model is None:
+        if isbert:
+            raise ValueError("Model config needs to be passed for this "
+                             "model type")
+    else:
+        config_model = {}
+        load_config_into_args(args.config_model, config_model, is_dict=True)
+        load_config_into_args(args.config_model, args)
+
+    if args.config_data is None:
+        if isxlnet or isbert:
+            raise ValueError("Data and model config need to be passed for this "
+                             "model type")
+    else:
+        load_config_into_args(args.config_data, args)
 
     if isxlnet and args.seed != -1:
         make_deterministic(args.seed)
