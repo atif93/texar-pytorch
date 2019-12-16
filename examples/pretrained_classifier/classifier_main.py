@@ -50,13 +50,13 @@ def load_config_into_args(config_path: str, args, is_dict=False):
     config_module_path = config_path.replace('/', '.').replace('\\', '.')
     if config_module_path.endswith(".py"):
         config_module_path = config_module_path[:-3]
-    config_data = importlib.import_module(config_module_path)
-    for key in dir(config_data):
+    config = importlib.import_module(config_module_path)
+    for key in dir(config):
         if not key.startswith('__') and key != "hyperparams":
             if is_dict:
-                args[key] = getattr(config_data, key)
+                args[key] = getattr(config, key)
             else:
-                setattr(args, key, getattr(config_data, key))
+                setattr(args, key, getattr(config, key))
 
 
 def parse_args():
@@ -345,11 +345,11 @@ def main(args) -> None:
                 scheduler.step()
                 step = scheduler.last_epoch
 
-                dis_steps = config_data.display_steps
+                dis_steps = args.display_steps
                 if dis_steps > 0 and step % dis_steps == 0:
                     logging.info("step: %d; loss: %f", step, loss)
 
-                eval_steps = config_data.eval_steps
+                eval_steps = args.eval_steps
                 if eval_steps > 0 and step % eval_steps == 0:
                     _eval_epoch()
 
@@ -408,7 +408,7 @@ def main(args) -> None:
             scheduler.load_state_dict(ckpt['scheduler'])
 
         if args.do_train:
-            for _ in range(config_data.max_train_epoch):
+            for _ in range(args.max_train_epoch):
                 _train_epoch()
             states = {
                 'model': model.state_dict(),
